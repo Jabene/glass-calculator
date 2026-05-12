@@ -36,7 +36,7 @@ async function loadXpTable() {
   status.className = "status";
 
   try {
-    const res = await fetch("/xp-table.json", { cache: "no-store" });
+    const res = await fetch(`${import.meta.env.BASE_URL}xp-table.json`, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const levels = data.cumulativeXpToReachLevel;

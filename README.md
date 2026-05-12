@@ -24,6 +24,16 @@ npm run preview  # serve the production build locally
 
 ---
 
+## GitHub Pages
+
+Project sites are served under a **subpath** (for example `https://<user>.github.io/<repo>/`). With Vite’s default `base: '/'`, built CSS and JS are requested from the **domain root** (`/assets/...`), so the browser never loads your stylesheet from the repo folder and the page looks unstyled.
+
+This project sets **`base: './'`** in `vite.config.js` so asset URLs are **relative** to `index.html`. The XP table is loaded with **`import.meta.env.BASE_URL`**, which resolves to the same base in production.
+
+After pulling these changes, run **`npm run build`** and publish the **`dist/`** output (for example with [actions/upload-pages-artifact](https://github.com/actions/upload-pages-artifact) or by pushing the contents of `dist/` to your `gh-pages` branch), not the raw repo root with unbundled `/src/` links.
+
+---
+
 ## Experience table (`public/xp-table.json`)
 
 The app loads **`public/xp-table.json`** at runtime. Edit that file, then **reload the browser**.
