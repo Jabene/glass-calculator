@@ -26,11 +26,26 @@ npm run preview  # serve the production build locally
 
 ## GitHub Pages
 
-Project sites are served under a **subpath** (for example `https://<user>.github.io/<repo>/`). With Vite’s default `base: '/'`, built CSS and JS are requested from the **domain root** (`/assets/...`), so the browser never loads your stylesheet from the repo folder and the page looks unstyled.
+Vite **does not** run on GitHub’s servers when you point Pages at your **source branch folder**. If Pages serves the **repository root** (the same files you use for development), the live site still loads `index.html` that references **`/src/main.js`** and **`/src/style.css`**. Those files are not built for production there, so you get **404** and plain unstyled HTML.
 
-This project sets **`base: './'`** in `vite.config.js` so asset URLs are **relative** to `index.html`. The XP table is loaded with **`import.meta.env.BASE_URL`**, which resolves to the same base in production.
+You must publish the **production build** (the contents of the **`dist/`** folder after `npm run build`), not the raw repo root.
 
-After pulling these changes, run **`npm run build`** and publish the **`dist/`** output (for example with [actions/upload-pages-artifact](https://github.com/actions/upload-pages-artifact) or by pushing the contents of `dist/` to your `gh-pages` branch), not the raw repo root with unbundled `/src/` links.
+### Option A — GitHub Actions (recommended)
+
+This repo includes **`.github/workflows/deploy-pages.yml`**, which runs `npm ci`, `npm run build`, and deploys **`dist/`** to Pages.
+
+1. Push the workflow to GitHub (on `main` or `master`; edit the workflow file if your default branch has another name).
+2. In the repo: **Settings → Pages → Build and deployment**.
+3. Set **Source** to **GitHub Actions** (not “Deploy from a branch” unless you know you are publishing `dist/` only).
+4. Open the **Actions** tab and confirm the **Deploy to GitHub Pages** workflow succeeds. Your site should load CSS/JS from `./assets/...`.
+
+### Option B — Manual / `gh-pages` branch
+
+Run **`npm run build`**, then copy **everything inside `dist/`** (including `index.html`, `assets/`, and `xp-table.json`) to the branch or folder GitHub Pages serves—**not** the parent project folder that still contains `src/`.
+
+### Subpath and `base`
+
+Project sites live under a path like **`https://<user>.github.io/<repo>/`**. This project sets **`base: './'`** in `vite.config.js` so built assets use **relative** URLs. The XP table is fetched with **`import.meta.env.BASE_URL`** so it resolves next to `index.html` in production.
 
 ---
 
