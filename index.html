@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RuneScape glass crafting calculator</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <h1>Glass crafting actions</h1>
+        <p class="lede">
+          Molten glass grants experience when made, then again when shaped into an item. This planner finds how many molten glass and how many end products you need so you do not bank extra molten glass you will never use for that grind.
+        </p>
+      </header>
+
+      <section class="panel" id="xp-load-panel">
+        <h2>Experience table</h2>
+        <p class="hint">
+          Edit <code>public/xp-table.json</code>: each entry is <strong>total</strong> experience in the skill needed to <strong>be on</strong> that level (what the game shows), not XP only for the step from the previous level. Level 1 is <code>0</code>; index 2 is total XP to be level 3, and so on. Reload after saving.
+        </p>
+        <p id="xp-table-status" class="status" role="status"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Your goal</h2>
+        <form id="calc-form" class="form">
+          <label class="field">
+            <span>Current experience (total)</span>
+            <input type="number" id="current-xp" name="currentXp" min="0" step="1" required inputmode="numeric" />
+          </label>
+
+          <label class="field">
+            <span>Target level</span>
+            <select id="target-level" name="targetLevel" required></select>
+          </label>
+
+          <fieldset class="fieldset">
+            <legend>Molten glass method</legend>
+            <label class="radio">
+              <input type="radio" name="glassMethod" value="furnace" checked />
+              Furnace / sand + soda ash (20 XP per molten glass)
+            </label>
+            <label class="radio">
+              <input type="radio" name="glassMethod" value="superglass" />
+              Superglass Make (10 XP per molten glass)
+            </label>
+          </fieldset>
+
+          <label class="field">
+            <span>End product</span>
+            <select id="product" name="product"></select>
+          </label>
+
+          <button type="submit" class="primary">Calculate</button>
+        </form>
+      </section>
+
+      <section class="panel panel--result" id="result-panel" hidden>
+        <h2>Plan</h2>
+        <div id="result-content"></div>
+      </section>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
