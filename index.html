@@ -15,16 +15,9 @@
         </p>
       </header>
 
-      <section class="panel" id="xp-load-panel">
-        <h2>Experience table</h2>
-        <p class="hint">
-          Edit <code>public/xp-table.json</code>: each entry is <strong>total</strong> experience in the skill needed to <strong>be on</strong> that level (what the game shows), not XP only for the step from the previous level. Level 1 is <code>0</code>; index 2 is total XP to be level 3, and so on. Reload after saving.
-        </p>
-        <p id="xp-table-status" class="status" role="status"></p>
-      </section>
-
       <section class="panel">
         <h2>Your goal</h2>
+        <p id="startup-error" class="status status--err" hidden role="alert"></p>
         <form id="calc-form" class="form">
           <label class="field">
             <span>Current experience (total)</span>
@@ -53,7 +46,7 @@
             <select id="product" name="product"></select>
           </label>
 
-          <button type="submit" class="primary">Calculate</button>
+          <button type="submit" class="primary" id="calc-submit" disabled>Loading…</button>
         </form>
       </section>
 

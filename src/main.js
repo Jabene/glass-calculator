@@ -31,9 +31,8 @@ function formatNum(n) {
 }
 
 async function loadXpTable() {
-  const status = $("xp-table-status");
-  status.textContent = "Loading experience table…";
-  status.className = "status";
+  const submitBtn = document.getElementById("calc-submit");
+  const startupErr = document.getElementById("startup-error");
 
   try {
     const xpCandidates = [
@@ -54,26 +53,37 @@ async function loadXpTable() {
     const data = await res.json();
     const levels = data.cumulativeXpToReachLevel;
     if (!Array.isArray(levels) || levels.length !== 99) {
-      throw new Error(
-        "cumulativeXpToReachLevel must be 99 numbers: total lifetime XP to be on each level 1–99 (not XP-per-level deltas).",
-      );
+      throw new Error("Invalid level data");
     }
     for (let i = 0; i < levels.length; i++) {
       const v = levels[i];
       if (typeof v !== "number" || !Number.isFinite(v) || v < 0) {
-        throw new Error(`Invalid XP at index ${i} (level ${i + 1}).`);
+        throw new Error("Invalid level data");
       }
       if (i > 0 && levels[i] < levels[i - 1]) {
-        throw new Error(`XP must not decrease between level ${i} and ${i + 1}.`);
+        throw new Error("Invalid level data");
       }
     }
     xpTable = { cumulativeXpToReachLevel: levels };
-    status.textContent = "Experience table loaded (99 levels).";
-    status.classList.add("status--ok");
-  } catch (e) {
+    if (startupErr) {
+      startupErr.hidden = true;
+      startupErr.textContent = "";
+    }
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Calculate";
+    }
+  } catch {
     xpTable = null;
-    status.textContent = `Could not load xp-table.json: ${e instanceof Error ? e.message : String(e)}`;
-    status.classList.add("status--err");
+    if (startupErr) {
+      startupErr.hidden = false;
+      startupErr.textContent =
+        "Level data could not be loaded. Check your connection and refresh the page.";
+    }
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Unavailable";
+    }
   }
 }
 
@@ -114,7 +124,11 @@ function initForm() {
   $("calc-form").addEventListener("submit", (ev) => {
     ev.preventDefault();
     if (!xpTable) {
-      alert("Fix xp-table.json and reload before calculating.");
+      const panel = $("result-panel");
+      const content = $("result-content");
+      panel.hidden = false;
+      content.innerHTML =
+        "<p class=\"result-note\">Level data is not available yet. Wait a moment, or refresh the page.</p>";
       return;
     }
 
@@ -153,8 +167,6 @@ function initForm() {
 
     const plan = planGlassGrind(T, g, p);
 
-    const glassLabel = glassMethod === "superglass" ? "Superglass Make (10 XP per molten glass)" : "Furnace / other (20 XP per molten glass)";
-
     content.innerHTML = `
       <dl class="result-grid">
         <dt>Experience to gain</dt><dd>${formatNum(T)}</dd>
@@ -164,9 +176,6 @@ function initForm() {
         <dt>Total crafting actions</dt><dd>${formatNum(plan.totalActions)} <span class="muted">(molten + product)</span></dd>
         <dt>Experience after plan</dt><dd>${formatNum(currentXp + plan.totalXp)} <span class="muted">(overshoot +${formatNum(plan.overshootXp)})</span></dd>
       </dl>
-      <p class="result-note">
-        Method: <strong>${glassLabel}</strong>. Each product uses one molten glass. The planner minimizes spare molten glass, then extra XP past the goal, then total actions—so you should not finish the goal with hundreds of molten glass you no longer need for the chosen product.
-      </p>
     `;
     panel.hidden = false;
   });
