@@ -36,8 +36,21 @@ async function loadXpTable() {
   status.className = "status";
 
   try {
-    const res = await fetch(`${import.meta.env.BASE_URL}xp-table.json`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const xpCandidates = [
+      new URL("../xp-table.json", import.meta.url).href,
+      new URL("../public/xp-table.json", import.meta.url).href,
+    ];
+    let res = null;
+    let lastStatus = 0;
+    for (const href of xpCandidates) {
+      const r = await fetch(href, { cache: "no-store" });
+      if (r.ok) {
+        res = r;
+        break;
+      }
+      lastStatus = r.status;
+    }
+    if (!res) throw new Error(`HTTP ${lastStatus}`);
     const data = await res.json();
     const levels = data.cumulativeXpToReachLevel;
     if (!Array.isArray(levels) || levels.length !== 99) {

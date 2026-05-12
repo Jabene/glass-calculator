@@ -26,9 +26,11 @@ npm run preview  # serve the production build locally
 
 ## GitHub Pages
 
-Vite **does not** run on GitHub’s servers when you point Pages at your **source branch folder**. If Pages serves the **repository root** (the same files you use for development), the live site still loads `index.html` that references **`/src/main.js`** and **`/src/style.css`**. Those files are not built for production there, so you get **404** and plain unstyled HTML.
+Vite **does not** run on GitHub’s servers when you point Pages at your **source branch folder**. If Pages serves the **repository root** (the same files you use for development), the live site must load `src/` from the **repo** path, not from the domain root.
 
-You must publish the **production build** (the contents of the **`dist/`** folder after `npm run build`), not the raw repo root.
+**Why you saw 404s:** Paths starting with **`/`** (for example `/src/main.js`) resolve to **`https://<user>.github.io/src/...`**, not **`https://<user>.github.io/<repo>/src/...`**. This project’s `index.html` uses **`./src/...`** so a “full repo” Pages deploy can load modules and CSS under the project site. Prefer still publishing the **`dist/`** build (Actions workflow) for a smaller, faster site.
+
+You **should** still publish the **`dist/`** build when you can (GitHub Actions or manual): it bundles and minifies. If Pages only serves the **repo root** with source files, **`./src/`** entry points and the XP-table fetch fallback still let the app run.
 
 ### Option A — GitHub Actions (recommended)
 
@@ -45,7 +47,7 @@ Run **`npm run build`**, then copy **everything inside `dist/`** (including `ind
 
 ### Subpath and `base`
 
-Project sites live under a path like **`https://<user>.github.io/<repo>/`**. This project sets **`base: './'`** in `vite.config.js` so built assets use **relative** URLs. The XP table is fetched with **`import.meta.env.BASE_URL`** so it resolves next to `index.html` in production.
+Project sites live under a path like **`https://<user>.github.io/<repo>/`**. This project sets **`base: './'`** in `vite.config.js` so built assets use **relative** URLs. The XP table is fetched using URLs derived from **`import.meta.url`**: **`../xp-table.json`** next to the built bundle (or **`../public/xp-table.json`** when the full repository—including `public/`—is served without a build).
 
 ---
 
